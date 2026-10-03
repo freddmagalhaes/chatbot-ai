@@ -1,4 +1,3 @@
-import os
 import time
 import streamlit as st
 from google import genai
@@ -28,13 +27,19 @@ def mostrar_historico():
 
 def obter_chat():
     if "gemini_chat" not in st.session_state:
-        api_key = os.environ.get("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("A variável GOOGLE_API_KEY não foi encontrada no ambiente.")
+        try:
+            api_key = st.secrets["GOOGLE_API_KEY"]
+        except KeyError:
+            raise ValueError(
+                "A variável GOOGLE_API_KEY não foi encontrada nos Secrets do Streamlit."
+            )
 
         client = genai.Client(api_key=api_key)
+
         st.session_state.gemini_client = client
-        st.session_state.gemini_chat = client.chats.create(model="gemini-3.8-flash")
+        st.session_state.gemini_chat = client.chats.create(
+            model="gemini-3.8-flash"
+        )
 
     return st.session_state.gemini_chat
 
